@@ -63,4 +63,4 @@ compfest-edging/
 Later..
 
 ## Contributors
-@Myriadn, @seymourrisey ,@azwinrx
+[@Myriadn](https://github.com/Myriadn), [@seymourrisey](https://github.com/seymourrisey), [@azwinrx](https://github.com/azwinrx)
