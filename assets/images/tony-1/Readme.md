@@ -1,0 +1,1 @@
+prologue cutscene awal. dimulai ketika game di mulai pertama kaliss
