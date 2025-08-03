@@ -41,21 +41,17 @@ function love.load()
     -- Set default filter mode for scaling images
     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    -- Initialize the game state
-    currentState = playState.new()
+    -- Muat state awal menggunakan SwitchState
+    SwitchState(require("src.states.playState").new())
 
-    -- Load assets and initialize game components
-    if currentState.load then
-        currentState:load()
-    end
-
+    -- Panggil resize sekali di awal untuk setup skala
     love.resize(love.graphics.getDimensions())
 end
 
 function love.update(dt)
     -- Update current game state
-    if currentState.update then
-        currentState:update(dt)
+    if activeState and activeState.update then
+        activeState:update(dt)
     end
 end
 
@@ -67,15 +63,12 @@ function love.draw()
     love.graphics.scale(scaleX, scaleY)
 
     -- Draw the current game state
-    if currentState.draw then
-        currentState:draw()
+    if activeState and activeState.draw then
+        activeState:draw()
     end
 
     -- Back to normal coordinates
     love.graphics.pop()
-
-    -- Debug information (can be toggled)
-    -- love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10)
 end
 
 function love.resize(w, h)
@@ -102,28 +95,28 @@ function love.keypressed(key, scancode, isrepeat)
     end
 
     -- Pass input to current state
-    if currentState.keypressed then
-        currentState:keypressed(key, scancode, isrepeat)
+    if activeState.keypressed then
+        activeState:keypressed(key, scancode, isrepeat)
     end
 end
 
 function love.keyreleased(key, scancode)
     -- Pass input to current state
-    if currentState.keyreleased then
-        currentState:keyreleased(key, scancode)
+    if activeState.keyreleased then
+        activeState:keyreleased(key, scancode)
     end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
     -- Pass input to current state
-    if currentState.mousepressed then
-        currentState:mousepressed(x, y, button, istouch, presses)
+    if activeState.mousepressed then
+        activeState:mousepressed(x, y, button, istouch, presses)
     end
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
     -- Pass input to current state
-    if currentState.mousereleased then
-        currentState:mousereleased(x, y, button, istouch, presses)
+    if activeState.mousereleased then
+        activeState:mousereleased(x, y, button, istouch, presses)
     end
 end

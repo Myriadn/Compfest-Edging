@@ -122,7 +122,7 @@ function playState:update(dt)
     if self.balance <= 0 then
         print("Game Over! Balance reached zero.")
         -- call the lose state
-        _G.SwitchState(require("src.states.loseState").new)
+        _G.SwitchState(require("src.states.loseState").new())
         return  -- Stop further updates
     end
 
@@ -130,7 +130,7 @@ function playState:update(dt)
     if self.player.x > VIRTUAL_WIDTH then
         print("You win! Reached the goal.")
         -- call the win state
-        _G.SwitchState(require("src.states.winState").new)
+        _G.SwitchState(require("src.states.winState").new())
         return  -- Stop further updates
     end
 
