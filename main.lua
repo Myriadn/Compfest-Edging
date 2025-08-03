@@ -9,10 +9,29 @@ VIRTUAL_WIDTH = 1280    -- Virtual width of the game
 VIRTUAL_HEIGHT = 720    -- Virtual height of the game
 
 -- Global variables
-local currentState
+local activeState
 local canvas
 local scaleX, scaleY
 local offsetX, offsetY
+
+-- Function to switch between game states
+function SwitchState(newState)
+    print("Memasuki switchState. Tipe dari currentState adalah: " .. type(currentState))
+
+    -- Clean up current state if needed
+    if activeState and activeState.unload then
+        activeState:unload()
+    end
+
+    -- Switch to new state
+    activeState = newState
+
+    -- Initialize new state if needed
+    if activeState and activeState.load then
+        activeState:load()
+    end
+end
+_G.SwitchState = SwitchState
 
 -- Love2D callback functions
 function love.load()
@@ -106,21 +125,5 @@ function love.mousereleased(x, y, button, istouch, presses)
     -- Pass input to current state
     if currentState.mousereleased then
         currentState:mousereleased(x, y, button, istouch, presses)
-    end
-end
-
--- Function to switch between game states
-function switchState(newState)
-    -- Clean up current state if needed
-    if currentState and currentState.unload then
-        currentState:unload()
-    end
-
-    -- Switch to new state
-    currentState = newState
-
-    -- Initialize new state if needed
-    if currentState and currentState.load then
-        currentState:load()
     end
 end
