@@ -70,7 +70,7 @@ function menu:keypressed(key)
         if currentSelection > #options then currentSelection = 1 end
     elseif key == "return" or key == "space" then
         if options[currentSelection] == "start" then
-            SwitchState(require("src.states.playState").new())
+            SwitchState(require("src.states.prologueState").new())
         elseif options[currentSelection] == "credits" then
             print("Show credits")
         end
