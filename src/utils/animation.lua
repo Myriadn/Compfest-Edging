@@ -1,3 +1,5 @@
+-- animation.lua
+
 local Animation         =   {}
 Animation.__index       =   Animation
 

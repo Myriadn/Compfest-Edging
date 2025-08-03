@@ -126,7 +126,7 @@ end
 function PrologueState:draw()
     local currentScene = self.scenes[self.currentSceneIndex]
     if currentScene then
-        local scale = cutsceneScale 
+        local scale = cutsceneScale
 
         local imgW = currentScene:getWidth()
         local imgH = currentScene:getHeight()
