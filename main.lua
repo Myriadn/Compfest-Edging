@@ -2,6 +2,7 @@
 -- Entry point for the Love2D game
 
 -- Include dependencies
+_G.love = require("love")
 local playState = require("src.states.playState")
 
 -- VIRTUAL RESOLUTION
@@ -16,7 +17,7 @@ local offsetX, offsetY
 
 -- Function to switch between game states
 function SwitchState(newState)
-    print("Memasuki switchState. Tipe dari currentState adalah: " .. type(currentState))
+    print("Memasuki switchState. Tipe dari currentState adalah: " .. type(activeState))
 
     -- Clean up current state if needed
     if activeState and activeState.unload then
