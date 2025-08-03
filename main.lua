@@ -3,7 +3,8 @@
 
 -- Include dependencies
 _G.love             =   require("love")
-local playState     =   require("src.states.playState")
+local fontPath      =   "/assets/fonts/PixAntiqua.ttf"
+local fontSize      =   30
 
 -- VIRTUAL RESOLUTION
 VIRTUAL_WIDTH       =   1280    -- Virtual width of the game
@@ -24,12 +25,11 @@ function SwitchState(newState)
 end
 _G.SwitchState = SwitchState
 
-function love.load()
+function love.load(font)
     math.randomseed(os.time())
     love.graphics.setDefaultFilter("nearest", "nearest")
-
-    -- Nanti kita akan ganti ini untuk memulai dari PrologueState
-    SwitchState(require("src.states.prologueState").new())
+    font = love.graphics.newFont(fontPath, fontSize)
+    SwitchState(require("src.states.menuState").new())
 end
 
 function love.update(dt)

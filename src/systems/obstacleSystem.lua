@@ -2,6 +2,9 @@
 
 local Bird              =   require("src.entities.Bird")
 
+local increaseBalance   =   5
+local decreaseBalance   =   25
+
 local ObstacleSystem    =   {}
 ObstacleSystem.__index  =   ObstacleSystem
 
@@ -15,7 +18,7 @@ function ObstacleSystem.new()
     return self
 end
 
-function ObstacleSystem:update(dt, player)
+function ObstacleSystem:update(dt, player, balanceSystem)
     -- Logika Spawner
     self.spawnTimer = self.spawnTimer - dt
     if self.spawnTimer <= 0 then
@@ -30,9 +33,10 @@ function ObstacleSystem:update(dt, player)
 
         -- Periksa apakah QTE terlewat dan berikan penalti
         if obs.qte.isMissed then
-            player.balance = player.balance - 25 -- Penalti
-            table.remove(self.obstacles, i) -- Hapus burung
-        -- Hapus rintangan jika sudah keluar layar
+            print("QTE Missed! Balance decreased.")
+            balanceSystem:decreaseBalance(decreaseBalance)
+            table.remove(self.obstacles, i)
+
         elseif obs.x + obs.width < 0 then
             table.remove(self.obstacles, i)
         end
@@ -45,13 +49,14 @@ function ObstacleSystem:draw()
     end
 end
 
-function ObstacleSystem:mousepressed(x, y, player)
+function ObstacleSystem:mousepressed(x, y, balanceSystem)
     for i = #self.obstacles, 1, -1 do
         local obs = self.obstacles[i]
         if obs:isClicked(x, y) then
-            player.balance = player.balance + 5 -- Bonus
+            print("HIT! obstacles removed.")
+            balanceSystem:increaseBalance(increaseBalance)
             table.remove(self.obstacles, i)
-            return -- Hentikan loop setelah satu klik berhasil
+            return
         end
     end
 end

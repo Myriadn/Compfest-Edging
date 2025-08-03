@@ -8,21 +8,21 @@ Bird.__index    =   Bird
 
 function Bird.new()
     -- Inisialisasi properti dasar
-    local self      = setmetatable(Entity.new(), Bird)
-    self.x          = VIRTUAL_WIDTH + 50
-    self.y          = math.random(100, 400)
-    self.width      = 40
-    self.height     = 30
-    self.speed      = 200
+    local self      =   setmetatable(Entity.new(), Bird)
+    self.x          =   VIRTUAL_WIDTH + 50
+    self.y          =   math.random(100, 400)
+    self.width      =   40
+    self.height     =   40
+    self.speed      =   200
 
     -- Data spesifik untuk QTE
     self.qte = {
-        active                  = false,
-        triggerDistance         = 300,
-        hitCircleRadius         = 30,
-        approachCircleRadius    = 150,
-        approachRate            = 100,
-        isMissed                = false
+        active                  =   false,
+        triggerDistance         =   300,
+        hitCircleRadius         =   30,
+        approachCircleRadius    =   150,
+        approachRate            =   100,
+        isMissed                =   false
     }
 
     return self
@@ -48,8 +48,8 @@ end
 
 function Bird:draw()
     -- Gambar placeholder untuk burung
-    love.graphics.setColor(1, 0.2, 0.2)
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.circle("fill", self.x + self.width / 2, self.y + self.height / 2, self.width / 2)
 
     -- Gambar QTE jika aktif
     if self.qte.active and not self.qte.isMissed then

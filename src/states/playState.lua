@@ -2,10 +2,10 @@
 
 -- Import the base game state module
 local gameState         =   require("src.states.gameState")
-local helpers           =   require("src.utils.helpers")
-local player            =   require("src.entities.player")
+local Player            =   require("src.entities.player")
 local BalanceSystem     =   require("src.systems.balanceSystem")
-local BackgroundSystem  =   require("src.systems.BackgroundSystem")
+local ObstacleSystem    =   require("src.systems.obstacleSystem")
+local BackgroundSystem  =   require("src.systems.backgroundSystem")
 
 -- Table for the play state, inheriting from gameState
 local playState     =   {}
@@ -13,23 +13,22 @@ playState.__index   =   playState
 
 -- Constructor for the play state
 function playState.new()
-    local self = setmetatable(gameState.new(), playState)
+    local self  = setmetatable(gameState.new(), playState)
 
-    self.player = player.new(50, self.ropeY)    -- Entities player
-
+    -- Properti level
     self.rope = {
-        y = 664,                                -- Posisi Y tali (dibawah kaki pemain)
+        y = 664,
         startX = 0,
-        endX = VIRTUAL_WIDTH                    -- lebar jendela
+        endX = VIRTUAL_WIDTH
     }
 
-    -- Obstacles
-    self.obstacles = {}                         -- Placeholder for obstacles, can be filled later
-    self.obstacleSpawnTimer = 3                 -- Time in seconds to spawn a new obstacle
-    self.obstacleSpawnInterval = 5              -- Interval for spawning obstacles
+    -- Instances
+    self.player             =   Player.new(50, self.rope.y)     -- Entities player
+    self.balanceSystem      =   BalanceSystem.new()             -- Balance system
+    self.obstacleSystem     =   ObstacleSystem.new()            -- Obstacle system
+    self.backgroundSystem   =   BackgroundSystem.new()          -- Background system
 
-    self.balanceSystem = BalanceSystem.new()    -- Balance system
-    self.backgroundSystem = BackgroundSystem.new()
+    self.obstacleSystem.player = self.player
 
     return self
 end
@@ -58,109 +57,43 @@ function playState:spawnObstacle()
 end
 
 function playState:load()
-    print("playState loaded")                   -- for debugging purposes
+    print("playState loaded")
 end
 
 function playState:update(dt)
-    gameState.update(self, dt)
+    self.player:update(dt)
+    self.balanceSystem:update(dt)
+    self.obstacleSystem:update(dt, self.player, self.balanceSystem)
+    self.backgroundSystem:update(dt)
 
-    self.backgroundSystem:update(dt)            -- Update background system
-
-    self.player:update(dt)                      -- just development update for player
-
-    self.balanceSystem:update(dt)               -- Update balance system
-
-    -- Lose condition
-    if self.balance <= 0 then
-        print("Game Over! Balance reached zero.")
+    -- Cek kondisi menang/kalah dari sistem yang relevan
+    if self.balanceSystem:isDepleted() then
         _G.SwitchState(require("src.states.loseState").new())
         return
     end
 
-    -- Win condition
     if self.player.x > VIRTUAL_WIDTH then
-        print("You win! Reached the goal.")
-        -- call the win state
         _G.SwitchState(require("src.states.winState").new())
-        return  -- Stop further updates
-    end
-
-    -- Obstacle Spawner
-    self.obstacleSpawnTimer = self.obstacleSpawnTimer - dt
-    if self.obstacleSpawnTimer <= 0 then
-        self:spawnObstacle()
-        self.obstacleSpawnTimer = self.obstacleSpawnInterval + math.random(-1, 1)
-    end
-
-    -- Looping for obstacles and memory management
-    for i = #self.obstacles, 1, -1 do
-        local obs = self.obstacles[i]
-        obs.x = obs.x - obs.speed * dt
-
-        local dist = math.abs(obs.x - self.player.x)
-        if not obs.qte.active and dist < obs.qte.triggerDistance then
-            obs.qte.active = true   -- Activate QTE
-        end
-
-        if obs.qte.active and not obs.qte.isMissed then
-            -- Susutkan approach circle
-            obs.qte.approachCircleRadius = obs.qte.approachCircleRadius - obs.qte.approachRate * dt
-
-            -- Check condition "missed"
-            if obs.qte.approachCircleRadius < obs.qte.hitCircleRadius then
-                obs.qte.isMissed = true
-                print("QTE Missed! Balance decreased.")
-                self.balance = self.balance - 25
-            end
-        end
-
-        -- Remove obstacle if it goes left off-screen
-        if obs.x + obs.width < 0 then
-            table.remove(self.obstacles, i)
-            print("Remove bird")
-        end
+        return
     end
 end
 
 function playState:draw()
-    gameState.draw(self)
-
-    -- Set background
+    -- Gambar dalam urutan layer yang benar (belakang ke depan)
     self.backgroundSystem:draw()
 
-    -- Draw rope
     love.graphics.setColor(1, 1, 1)
-    love.graphics.line(self.rope.startX, self.rope.y, self.rope.endX, self.rope.y)
+    love.graphics.line(0, self.rope.y, VIRTUAL_WIDTH, self.rope.y)
 
-    -- Draw player
     self.player:draw()
+    self.obstacleSystem:draw()
 
-    -- Draw balance system
+    -- Gambar UI selalu paling depan
     self.balanceSystem:draw()
-
-    -- Return color to white
-    love.graphics.setColor(1, 1, 1)
 end
 
 function playState:mousepressed(x, y, button, istouch, pressed)
-	-- Loop dari belakang untuk keamanan saat menghapus
-	for i = #self.obstacles, 1, -1 do
-        local obs = self.obstacles[i]
-        -- Check only active QTA
-        if obs.qte.active and not obs.qte.isMissed then
-            local dist = helpers.getDistance(x, y, obs.x + obs.width/2, obs.y + obs.height/2)
-
-            -- Check if clicked on hit circle
-            if dist <= obs.qte.hitCircleRadius then
-                print("HIT! obstacles removed.")
-                table.remove(self.obstacles, i)
-                -- add simply balance
-                self.balance = self.balance + 5
-                goto next_obstacle          -- next iteration
-            end
-        end
-        ::next_obstacle::
-    end
+	self.obstacleSystem:mousepressed(x, y, self.balanceSystem)
 end
 
 function playState:unload()

@@ -42,6 +42,8 @@ end
 
 -- Semua logika gambar pemain ada di sini
 function Player:draw()
+    love.graphics.setColor(1, 1, 1)
+
     local _, _, _, upperBodyHeight = self.animUpper.quads[1]:getViewport()
 
     -- Gambar bagian bawah (kaki) terlebih dahulu

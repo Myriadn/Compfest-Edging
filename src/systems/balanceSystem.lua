@@ -79,4 +79,15 @@ function BalanceSystem:isDepleted()
     return self.balance <= 0
 end
 
+function BalanceSystem:increaseBalance(amount)
+    self.balance = self.balance + amount
+    if self.balance > self.maxBalance then
+        self.balance = self.maxBalance
+    end
+end
+
+function BalanceSystem:decreaseBalance(amount)
+    self.balance = self.balance - amount
+end
+
 return BalanceSystem
