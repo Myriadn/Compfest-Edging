@@ -1,27 +1,32 @@
 -- player.lua
-local Entity    = require("src.entities.entity")
-local Animation = require("src.utils.animation")
+local Entity    =   require("src.entities.entity")
+local Animation =   require("src.utils.animation")
 
-local Player    = {}
-Player.__index  = Player
+local Player    =   {}
+Player.__index  =   Player
 
 function Player.new(x, y)
     -- Warisi properti dasar dari Entity
-    local self = setmetatable(Entity.new(x, y, 32, 64), Player)
+    local self  =  setmetatable(Entity.new(x, y, 32, 64), Player)
 
-    self.speed = 100
+    self.speed  =  100
 
     -- Muat aset sprite dan buat animasi
     local upperBodyImg = love.graphics.newImage("assets/images/sprites/protag-spritesheets.png")
     local lowerBodyImg = love.graphics.newImage("assets/images/sprites/protag-spritesheets-walk.png")
 
-    -- Asumsi lebar setiap frame adalah 1/3 dari total lebar gambar
     self.animUpper = Animation.new(upperBodyImg, upperBodyImg:getWidth() / 3, upperBodyImg:getHeight(), 0.5)
     self.animLower = Animation.new(lowerBodyImg, lowerBodyImg:getWidth() / 3, lowerBodyImg:getHeight(), 0.5)
 
+    -- Asumsi lebar setiap frame adalah 1/3 dari total lebar gambar
+    local _, _, upperW, upperH = self.animUpper.quads[1]:getViewport()
+    local _, _, lowerW, lowerH = self.animLower.quads[1]:getViewport()
+
     -- Sesuaikan tinggi pemain berdasarkan gabungan sprite
-    self.height = self.animUpper.quads[1]:getViewport()[4] + self.animLower.quads[1]:getViewport()[4]
-    self.width = self.animUpper.quads[1]:getViewport()[3]
+    self.height = upperH + lowerH
+    self.width  = upperW
+
+    self.y = y - self.height
 
     return self
 end
@@ -37,7 +42,7 @@ end
 
 -- Semua logika gambar pemain ada di sini
 function Player:draw()
-    local upperBodyHeight = self.animUpper.quads[1]:getViewport()[4]
+    local _, _, _, upperBodyHeight = self.animUpper.quads[1]:getViewport()
 
     -- Gambar bagian bawah (kaki) terlebih dahulu
     self.animLower:draw(self.x, self.y + upperBodyHeight)

@@ -14,9 +14,8 @@ playState.__index   =   playState
 -- Constructor for the play state
 function playState.new()
     local self = setmetatable(gameState.new(), playState)
-    self.backgroundSystem = BackgroundSystem.new()
 
-    self.player = player.new(50, 600)           -- Entities player
+    self.player = player.new(50, self.ropeY)    -- Entities player
 
     self.rope = {
         y = 664,                                -- Posisi Y tali (dibawah kaki pemain)
@@ -24,12 +23,13 @@ function playState.new()
         endX = VIRTUAL_WIDTH                    -- lebar jendela
     }
 
-    self.balanceSystem = BalanceSystem.new()    -- Balance system
-
     -- Obstacles
     self.obstacles = {}                         -- Placeholder for obstacles, can be filled later
     self.obstacleSpawnTimer = 3                 -- Time in seconds to spawn a new obstacle
     self.obstacleSpawnInterval = 5              -- Interval for spawning obstacles
+
+    self.balanceSystem = BalanceSystem.new()    -- Balance system
+    self.backgroundSystem = BackgroundSystem.new()
 
     return self
 end
@@ -71,7 +71,7 @@ function playState:update(dt)
     self.balanceSystem:update(dt)               -- Update balance system
 
     -- Lose condition
-    if self.balanceSystem:isDepleted() then
+    if self.balance <= 0 then
         print("Game Over! Balance reached zero.")
         _G.SwitchState(require("src.states.loseState").new())
         return

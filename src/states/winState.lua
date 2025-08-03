@@ -15,7 +15,7 @@ end
 function winState:keypressed(key)
     if key == "space" then
         -- Transition to the main menu state
-        _G.SwitchState(require("src.states.playState").new())
+        _G.SwitchState(require("src.states.menuState").new())
     end
 end
 
