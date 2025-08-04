@@ -16,6 +16,11 @@ function PrologueState.new()
     self.fadeOut = false   -- Flag untuk fade out
     self.waiting = false   -- Flag untuk jeda setelah fade out
 
+    self.audio = love.audio.newSource("/assets/sounds/Music/Background Music Cutscene.ogg", "stream")
+    self.audio:setVolume(0.1)
+    self.audio:setLooping(false) 
+    self.audio:play() 
+
     -- Muat semua gambar scene secara berurutan
     for i = 1, 9 do
         local scenePath = "assets/images/tony-1/scene-" .. i .. ".png"
@@ -154,6 +159,7 @@ end
 function PrologueState:keypressed(key)
     -- Izinkan pemain untuk skip prologue
     if key == "space" or key == "return" then
+        self.audio:stop()
         _G.SwitchState(require("src.states.playState").new())
     end
 end
