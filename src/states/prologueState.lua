@@ -36,10 +36,12 @@ function PrologueState.new()
     end
 
     self.currentSceneIndex = 1
-    self.sceneDuration = 2 -- Detik per adegan
+    self.sceneDuration = 2      -- Detik per adegan
     self.timer = self.sceneDuration
-    self.waitTimer = 0     -- Timer untuk jeda setelah fade out
-    self.waitDuration = 0.5  -- Durasi jeda setelah fade out (dalam detik)
+    self.waitTimer = 0          -- Timer untuk jeda setelah fade out
+    self.waitDuration = 0.5     -- Durasi jeda setelah fade out (dalam detik)
+
+    self.transition = require("src.systems.transitionSystem").new(1.5) -- durasi 1.5 detik
 
     return self
 end

@@ -3,6 +3,7 @@
 
 -- Include dependencies
 _G.love             =   require("love")
+_G.SoundManager     =   require("src.systems.soundManager").new()
 local fontPath      =   "/assets/fonts/PixAntiqua.ttf"
 local fontSize      =   30
 
@@ -26,6 +27,7 @@ end
 _G.SwitchState = SwitchState
 
 function love.load(font)
+
     math.randomseed(os.time())
     love.graphics.setDefaultFilter("nearest", "nearest")
     font = love.graphics.newFont(fontPath, fontSize)

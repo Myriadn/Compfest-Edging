@@ -7,26 +7,24 @@ Player.__index  =   Player
 
 function Player.new(x, y)
     -- Warisi properti dasar dari Entity
-    local self  =  setmetatable(Entity.new(x, y, 32, 64), Player)
-
+    local self  = setmetatable(Entity.new(x, y), Player)
     self.speed  =  100
 
     -- Muat aset sprite dan buat animasi
-    local upperBodyImg = love.graphics.newImage("assets/images/sprites/protag-spritesheets.png")
-    local lowerBodyImg = love.graphics.newImage("assets/images/sprites/protag-spritesheets-walk.png")
+    local spriteImage = love.graphics.newImage("assets/images/sprites/protag-spritesheets.png")
+    self.animation = Animation.new(spriteImage, spriteImage:getWidth() / 3, spriteImage:getHeight(), 0.15, false)
 
-    self.animUpper = Animation.new(upperBodyImg, upperBodyImg:getWidth() / 3, upperBodyImg:getHeight(), 0.5)
-    self.animLower = Animation.new(lowerBodyImg, lowerBodyImg:getWidth() / 3, lowerBodyImg:getHeight(), 0.5)
+    local _, _, w, h = self.animation.quads[1]:getViewport()
+    self.width  = w
+    self.height = h
+    self.y      = y - self.height
 
-    -- Asumsi lebar setiap frame adalah 1/3 dari total lebar gambar
-    local _, _, upperW, upperH = self.animUpper.quads[1]:getViewport()
-    local _, _, lowerW, lowerH = self.animLower.quads[1]:getViewport()
+    -- Properti untuk pergerakan smooth
+    self.targetX    = self.x
+    self.moveSpeed  = 2      -- Kecepatan interpolasi (semakin tinggi, semakin cepat)
+    self.stunTimer  = 0      -- Properti untuk stun
 
-    -- Sesuaikan tinggi pemain berdasarkan gabungan sprite
-    self.height = upperH + lowerH
-    self.width  = upperW
-
-    self.y = y - self.height
+    self.animation:setCurrentFrame(2)
 
     return self
 end
@@ -35,27 +33,44 @@ end
 function Player:update(dt)
     -- Gerakan auto-run
     -- self.x = self.x + self.speed * dt
+    self.x = self.x + (self.targetX - self.x) * self.moveSpeed * dt
 
-    self.animUpper:update(dt)
-    self.animLower:update(dt)
+    if self:isStunned() then
+        self.stunTimer = self.stunTimer - dt
+        self.animation:setCurrentFrame(2) -- Paksa ke frame tengah (stun)
+    else
+        self.animation:update(dt)
+
+        -- Jika animasi berjalan sudah selesai, kembali ke posisi idle
+        if self.animation.isFinished then
+            self.animation:setCurrentFrame(2)
+        end
+    end
 end
 
 function Player:moveForward()
     -- Jarak pergerakan bisa disesuaikan agar terasa pas
-    local moveDistance = 30
-    self.x = self.x + moveDistance
+    local moveDistance = 25
+    self.targetX = self.targetX + moveDistance
+    _G.SoundManager:play("playerWalk")
+    self.animation:play()
 end
 
 -- Semua logika gambar pemain ada di sini
 function Player:draw()
     love.graphics.setColor(1, 1, 1)
 
-    local _, _, _, upperBodyHeight = self.animUpper.quads[1]:getViewport()
-
-    -- Gambar bagian bawah (kaki) terlebih dahulu
-    self.animLower:draw(self.x, self.y + upperBodyHeight)
     -- Gambar bagian atas (badan)
-    self.animUpper:draw(self.x, self.y)
+    self.animation:draw(self.x, self.y)
+end
+
+function Player:stun(duration)
+    self.stunTimer = duration
+    _G.SoundManager:play("playerStun")
+end
+
+function Player:isStunned()
+    return self.stunTimer > 0
 end
 
 return Player

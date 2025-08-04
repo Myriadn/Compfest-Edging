@@ -4,7 +4,7 @@ local Entity    =   require("src.entities.entity")
 local helpers   =   require("src.utils.helpers")
 local Animation =   require("src.utils.animation")
 
-local decreaseBalance   =   25
+local decreaseBalance   =   20
 
 local Bird      =   {}
 Bird.__index    =   Bird
@@ -13,11 +13,11 @@ function Bird.new()
     -- Inisialisasi properti dasar
     local self      =   setmetatable(Entity.new(), Bird)
     self.x          =   VIRTUAL_WIDTH + 50
-    self.y          =   math.random(100, 400)
+    self.y          =   math.random(500, 600)
     self.speed      =   200
 
     local image = love.graphics.newImage("assets/images/sprites/bird-evil.png")
-    self.animation = Animation.new(image, image:getWidth() / 3, image:getHeight(), 0.3)
+    self.animation = Animation.new(image, image:getWidth() / 3, image:getHeight(), 0.3, true)
 
     self.width = image:getWidth() / 3
     self.height = image:getHeight()
@@ -38,7 +38,6 @@ end
 function Bird:update(dt, player, balanceSystem)
     -- Gerakkan burung ke kiri
     self.x = self.x - self.speed * dt
-
     self.animation:update(dt)
 
     local dist = math.abs(self.x - player.x)
@@ -50,6 +49,7 @@ function Bird:update(dt, player, balanceSystem)
         self.qte.approachCircleRadius = self.qte.approachCircleRadius - self.qte.approachRate * dt
         if self.qte.approachCircleRadius < self.qte.hitCircleRadius then
             self.qte.isMissed = true
+            player:stun(1.5)
             balanceSystem:decreaseBalance(decreaseBalance)
         end
     end

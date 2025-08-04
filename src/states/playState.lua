@@ -30,7 +30,7 @@ end
 function playState:update(dt)
     self.player:update(dt)
     self.balanceSystem:update(dt)
-    self.obstacleSystem:update(dt, self.balanceSystem)
+    self.obstacleSystem:update(dt, self.player, self.balanceSystem)
     self.backgroundSystem:update(dt)
 
     -- Cek kondisi menang/kalah dari sistem yang relevan
@@ -56,7 +56,7 @@ function playState:draw()
     self.obstacleSystem:draw(self.player)
 
     -- Gambar UI selalu paling depan
-    self.balanceSystem:draw()
+    self.balanceSystem:draw(self.player)
 end
 
 function playState:keypressed(key, scancode, isrepeat)
@@ -64,7 +64,7 @@ function playState:keypressed(key, scancode, isrepeat)
 
     if key == "space" then
         -- Panggil fungsi handleInput dari BalanceSystem, dan simpan hasilnya (true/false)
-        local success = self.balanceSystem:handleInput()
+        local success = self.balanceSystem:handleInput(self.player)
 
         -- Jika hasilnya true (berhasil), perintahkan pemain untuk bergerak maju
         if success then
@@ -77,8 +77,15 @@ function playState:mousepressed(x, y, button, istouch, pressed)
 	self.obstacleSystem:mousepressed(x, y, self.balanceSystem)
 end
 
+function playState:load()
+    _G.SoundManager:setVolume(0.35)
+    print("playState loaded")
+    _G.SoundManager:playMusic("gameplay", true)
+end
+
 function playState:unload()
-    print("playState unloaded")             -- for debugging purposes
+    print("playState unloaded")
+    _G.SoundManager:stopMusic()
 end
 
 return playState

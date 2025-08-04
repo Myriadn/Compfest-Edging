@@ -3,6 +3,10 @@
 local BalanceSystem     =   {}
 BalanceSystem.__index   =   BalanceSystem
 
+local increaseBalancePlus   = 9
+local decreaseBalanceMinus  = 15
+
+
 function BalanceSystem.new()
     local self = setmetatable({}, BalanceSystem)
 
@@ -70,7 +74,7 @@ function BalanceSystem:update(dt)
     end
 end
 
-function BalanceSystem:draw()
+function BalanceSystem:draw(player)
     local qte = self.qte
     -- Gambar bar utama
     love.graphics.setColor(0.3, 0.3, 0.3)
@@ -99,35 +103,57 @@ function BalanceSystem:draw()
     local currentBarWidth = barWidth * balancePercent
 
     if self.balance > 50 then
-        love.graphics.setColor(0.1, 0.8, 0.2) -- Hijau
+        love.graphics.setColor(0.1, 0.8, 0.2)   -- Hijau
     elseif self.balance > 25 then
-        love.graphics.setColor(1, 0.6, 0) -- Oranye
+        love.graphics.setColor(1, 0.6, 0)       -- Oranye
     else
-        love.graphics.setColor(0.9, 0.1, 0.1) -- Merah
+        love.graphics.setColor(0.9, 0.1, 0.1)   -- Merah
+    end
+    love.graphics.rectangle("fill", barX, barY, currentBarWidth, barHeight)
+
+    if player:isStunned() then
+        love.graphics.setColor(0.8, 0.1, 0.1, 0.8)  -- Merah tebal semi-transparan
+        love.graphics.setLineWidth(3)               -- Buat garis lebih tebal
+
+        local barLeft = qte.bar.x
+        local barRight = qte.bar.x + qte.bar.width
+        local barTop = qte.bar.y
+        local barBottom = qte.bar.y + qte.bar.height
+
+        love.graphics.line(barLeft, barTop, barRight, barBottom)
+        love.graphics.line(barRight, barTop, barLeft, barBottom)
+
+        love.graphics.setLineWidth(1)               -- Kembalikan tebal garis ke normal
     end
 
-    love.graphics.rectangle("fill", barX, barY, currentBarWidth, barHeight)
     love.graphics.setColor(1, 1, 1)
 end
 
-function BalanceSystem:handleInput()
+function BalanceSystem:handleInput(player)
+    if player:isStunned() then
+        print("Player is stunned! Cannot use balance QTE.")
+        return false
+    end
+
     local qte = self.qte
     local cursorCenter = qte.cursor.x + qte.cursor.width / 2
     local safeZone = qte.safeZone
 
     if cursorCenter >= safeZone.x and cursorCenter <= safeZone.x + safeZone.width then
         -- SUKSES
-        self:increaseBalance(20)
+        self:increaseBalance(increaseBalancePlus)
         self.streak = math.min(self.streak + 1, self.maxStreak)
         self:adjustSafeZoneSize()
         self:randomizeSafeZone()
+        _G.SoundManager:play("qteSuccess")
         return true -- Kembalikan 'true' untuk menandakan keberhasilan
     else
         -- GAGAL
-        self:decreaseBalance(15)
+        self:decreaseBalance(decreaseBalanceMinus)
         self.streak = 0 -- Reset streak
         self:adjustSafeZoneSize()
         self:randomizeSafeZone()
+        _G.SoundManager:play("qteFail")
         return false -- Kembalikan 'false'
     end
 end

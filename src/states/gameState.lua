@@ -1,14 +1,11 @@
 -- gameState.lua
--- Base game state module for managing different game states
 
-local gameState = {}
-gameState.__index = gameState
+local gameState     = {}
+gameState.__index   = gameState
 
--- Create a new game state instance
 function gameState.new()
     local self = setmetatable({}, gameState)
 
-    -- Default properties
     self.paused = false
     self.entities = {}
 

@@ -21,4 +21,8 @@ function loseState:keypressed(key)
     end
 end
 
+function loseState:load()
+    _G.SoundManager:playMusic("lose", false)
+end
+
 return loseState
