@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.identity                  = "compfest-edging"                 -- The name of the save directory (string)
+    t.identity                  = "Funabulist"                      -- The name of the save directory (string)
     t.version                   = "11.5"                            -- The LÖVE version this game was made for (string)
     t.console                   = true                              -- Attach a console (boolean, Windows only)
     t.accelerometerjoystick     = true                              -- Enable the accelerometer on iOS and Android by treating it as a Joystick (boolean)
