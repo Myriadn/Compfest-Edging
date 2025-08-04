@@ -32,3 +32,6 @@ Thumbs.db
 
 # Local configuration
 config.local.lua
+
+# output
+*.zip
