@@ -1,6 +1,6 @@
 -- obstacleSystem.lua
 
-local Bird              =   require("src.entities.Bird")
+local Bird              =   require("src.entities.bird")
 
 local increaseBalance   =   5
 

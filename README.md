@@ -1,4 +1,4 @@
-# Funambulist
+# Funabulist
 
 ![Game Icon](icon/icon.png)
 
