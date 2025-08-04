@@ -34,10 +34,16 @@ end
 -- Semua logika update pemain ada di sini
 function Player:update(dt)
     -- Gerakan auto-run
-    self.x = self.x + self.speed * dt
+    -- self.x = self.x + self.speed * dt
 
     self.animUpper:update(dt)
     self.animLower:update(dt)
+end
+
+function Player:moveForward()
+    -- Jarak pergerakan bisa disesuaikan agar terasa pas
+    local moveDistance = 30
+    self.x = self.x + moveDistance
 end
 
 -- Semua logika gambar pemain ada di sini

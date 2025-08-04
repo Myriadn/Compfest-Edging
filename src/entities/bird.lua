@@ -2,6 +2,9 @@
 
 local Entity    =   require("src.entities.entity")
 local helpers   =   require("src.utils.helpers")
+local Animation =   require("src.utils.animation")
+
+local decreaseBalance   =   25
 
 local Bird      =   {}
 Bird.__index    =   Bird
@@ -11,15 +14,19 @@ function Bird.new()
     local self      =   setmetatable(Entity.new(), Bird)
     self.x          =   VIRTUAL_WIDTH + 50
     self.y          =   math.random(100, 400)
-    self.width      =   40
-    self.height     =   40
     self.speed      =   200
+
+    local image = love.graphics.newImage("assets/images/sprites/bird-evil.png")
+    self.animation = Animation.new(image, image:getWidth() / 3, image:getHeight(), 0.3)
+
+    self.width = image:getWidth() / 3
+    self.height = image:getHeight()
 
     -- Data spesifik untuk QTE
     self.qte = {
         active                  =   false,
         triggerDistance         =   300,
-        hitCircleRadius         =   30,
+        hitCircleRadius         =   40,
         approachCircleRadius    =   150,
         approachRate            =   100,
         isMissed                =   false
@@ -28,13 +35,14 @@ function Bird.new()
     return self
 end
 
-function Bird:update(dt, player)
+function Bird:update(dt, player, balanceSystem)
     -- Gerakkan burung ke kiri
     self.x = self.x - self.speed * dt
 
-    -- Logika QTE
+    self.animation:update(dt)
+
     local dist = math.abs(self.x - player.x)
-    if not self.qte.active and dist < self.qte.triggerDistance then
+        if not self.qte.active and dist < self.qte.triggerDistance then
         self.qte.active = true
     end
 
@@ -42,14 +50,14 @@ function Bird:update(dt, player)
         self.qte.approachCircleRadius = self.qte.approachCircleRadius - self.qte.approachRate * dt
         if self.qte.approachCircleRadius < self.qte.hitCircleRadius then
             self.qte.isMissed = true
+            balanceSystem:decreaseBalance(decreaseBalance)
         end
     end
 end
 
 function Bird:draw()
-    -- Gambar placeholder untuk burung
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.circle("fill", self.x + self.width / 2, self.y + self.height / 2, self.width / 2)
+    love.graphics.setColor(1, 1, 1)
+    self.animation:draw(self.x, self.y)
 
     -- Gambar QTE jika aktif
     if self.qte.active and not self.qte.isMissed then

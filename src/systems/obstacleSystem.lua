@@ -3,7 +3,6 @@
 local Bird              =   require("src.entities.Bird")
 
 local increaseBalance   =   5
-local decreaseBalance   =   25
 
 local ObstacleSystem    =   {}
 ObstacleSystem.__index  =   ObstacleSystem
@@ -18,7 +17,7 @@ function ObstacleSystem.new()
     return self
 end
 
-function ObstacleSystem:update(dt, player, balanceSystem)
+function ObstacleSystem:update(dt, balanceSystem)
     -- Logika Spawner
     self.spawnTimer = self.spawnTimer - dt
     if self.spawnTimer <= 0 then
@@ -29,23 +28,17 @@ function ObstacleSystem:update(dt, player, balanceSystem)
     -- Update setiap rintangan
     for i = #self.obstacles, 1, -1 do
         local obs = self.obstacles[i]
-        obs:update(dt, player)
+        obs:update(dt, self.player, balanceSystem)
 
-        -- Periksa apakah QTE terlewat dan berikan penalti
-        if obs.qte.isMissed then
-            print("QTE Missed! Balance decreased.")
-            balanceSystem:decreaseBalance(decreaseBalance)
-            table.remove(self.obstacles, i)
-
-        elseif obs.x + obs.width < 0 then
+        if obs.x + obs.width < 0 then
             table.remove(self.obstacles, i)
         end
     end
 end
 
-function ObstacleSystem:draw()
+function ObstacleSystem:draw(player)
     for _, obs in ipairs(self.obstacles) do
-        obs:draw()
+        obs:draw(player)
     end
 end
 
@@ -53,7 +46,7 @@ function ObstacleSystem:mousepressed(x, y, balanceSystem)
     for i = #self.obstacles, 1, -1 do
         local obs = self.obstacles[i]
         if obs:isClicked(x, y) then
-            print("HIT! obstacles removed.")
+            -- print("HIT! obstacles removed.")
             balanceSystem:increaseBalance(increaseBalance)
             table.remove(self.obstacles, i)
             return
